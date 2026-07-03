@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
+  <Project Path="CardTransactions.Api/CardTransactions.Api.csproj" />
+  <Project Path="CardTransactions.Business.Tests/CardTransactions.Business.Tests.csproj" />
+  <Project Path="CardTransactions.Business/CardTransactions.Business.csproj" />
+  <Project Path="CardTransactions.Contracts/CardTransactions.Contracts.csproj" />
+  <Project Path="CardTransactions.Data/CardTransactions.Data.csproj" />
+  <Project Path="CardTransactions.IntegrationTests/CardTransactions.IntegrationTests.csproj" />
+</Solution>
