@@ -8,5 +8,7 @@ public interface ITransactionRepository
 
     Task<Transaction?> GetByIdAsync(Guid transactionId, CancellationToken cancellationToken = default);
 
+    Task<decimal> GetTotalAmountByCardIdAsync(Guid cardId, CancellationToken cancellationToken = default);
+
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -27,4 +27,12 @@ public class CardRepository : ICardRepository
     {
         return await _context.Cards.AnyAsync(x => x.Id == cardId, cancellationToken);
     }
+    public async Task<Card?> GetByIdAsync(
+    Guid cardId,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Cards
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == cardId, cancellationToken);
+    }
 }

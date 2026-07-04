@@ -44,6 +44,14 @@ public class TransactionService : ITransactionService
             throw new ArgumentException("TransactionDate is required.", nameof(request));
         }
 
+        var todayUtc = DateOnly.FromDateTime(DateTime.UtcNow);
+        if (request.TransactionDate > todayUtc)
+        {
+            throw new ArgumentException(
+                "TransactionDate cannot be in the future.",
+                nameof(request));
+        }
+
         var cardExists = await _cardRepository.ExistsAsync(cardId, cancellationToken);
         if (!cardExists)
         {

@@ -64,6 +64,36 @@ public class TreasuryExchangeRateClient : ITreasuryExchangeRateClient
             .ToList();
     }
 
+    public async Task<TreasuryExchangeRate?> GetLatestRateAsync(string currency, CancellationToken cancellationToken = default)
+    {
+        if (!IsoToTreasuryCountry.TryGetValue(currency, out var treasuryCountry))
+        {
+            return null;
+        }
+
+        var url =
+            $"{TreasuryApiBaseUrl}" +
+            "?fields=record_date,country,currency,exchange_rate" +
+            $"&filter=country:eq:{Uri.EscapeDataString(treasuryCountry)}" +
+            "&sort=-record_date" +
+            "&page[size]=1";
+
+        var response = await _httpClient.GetFromJsonAsync<TreasuryApiResponse>(url, cancellationToken);
+
+        var latest = response?.Data?.FirstOrDefault();
+        if (latest is null)
+        {
+            return null;
+        }
+
+        return new TreasuryExchangeRate
+        {
+            RecordDate = DateOnly.Parse(latest.RecordDate, CultureInfo.InvariantCulture),
+            Currency = currency.ToUpperInvariant(),
+            ExchangeRate = decimal.Parse(latest.ExchangeRate, CultureInfo.InvariantCulture)
+        };
+    }
+
     private sealed class TreasuryApiResponse
     {
         [JsonPropertyName("data")]
@@ -78,4 +108,5 @@ public class TreasuryExchangeRateClient : ITreasuryExchangeRateClient
         [JsonPropertyName("exchange_rate")]
         public string ExchangeRate { get; set; } = string.Empty;
     }
+
 }

@@ -8,4 +8,10 @@ public interface ICurrencyConversionService
         string targetCurrency,
         DateOnly transactionDate,
         CancellationToken cancellationToken = default);
+
+    Task<(decimal ExchangeRateUsed, decimal ConvertedAmount)> ConvertWithLatestRateAsync(
+     decimal amount,
+     string sourceCurrency,
+     string targetCurrency,
+     CancellationToken cancellationToken = default);
 }

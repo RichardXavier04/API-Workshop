@@ -2,6 +2,7 @@
 using CardTransactions.Contracts.Requests;
 using CardTransactions.Contracts.Responses;
 using Microsoft.AspNetCore.Mvc;
+using CardTransactions.Business.Exceptions;
 
 namespace CardTransactions.Api.Controllers;
 
@@ -22,12 +23,19 @@ public class CardsController : ControllerBase
     [ProducesResponseType(typeof(CardResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CardResponse>> Create(
-        [FromBody] CreateCardRequest request,
-        CancellationToken cancellationToken)
+    [FromBody] CreateCardRequest request,
+    CancellationToken cancellationToken)
     {
-        var response = await _cardService.CreateCardAsync(request, cancellationToken);
+        try
+        {
+            var response = await _cardService.CreateCardAsync(request, cancellationToken);
 
-        return Created($"/api/v1/cards/{response.Id}", response);
+            return Created($"/api/v1/cards/{response.Id}", response);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost("{cardId:guid}/transactions")]
@@ -50,6 +58,36 @@ public class CardsController : ControllerBase
         catch (KeyNotFoundException ex)
         {
             return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet("{cardId:guid}/balance")]
+    [ProducesResponseType(typeof(CardBalanceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CardBalanceResponse>> GetBalance(
+    [FromRoute] Guid cardId,
+    [FromQuery] string currency,
+    CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await _cardService.GetBalanceInCurrencyAsync(
+                cardId, currency, cancellationToken);
+
+            return Ok(response);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (CurrencyConversionException ex)
+        {
+            return BadRequest(ex.Message);
         }
         catch (ArgumentException ex)
         {
